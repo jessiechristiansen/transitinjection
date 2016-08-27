@@ -1,6 +1,6 @@
 
 % This script takes the outputs of the SOC 9.3 pipeline run on injected targets
-% Injections are on-target, and have at least three transits falling on valid cadences
+% Injections are on-target, FGK dwarfs, and have at least three transits falling on valid cadences
 % The results are split into P<100 and P>100 day bins, since the behaviour is still a function of period
 % The gamma CDF is fit separately to the P<100 and P>100 and overplotted on the data
 
