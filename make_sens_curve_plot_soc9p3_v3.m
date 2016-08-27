@@ -1,15 +1,10 @@
-%{
 
-%load allsaveddata
-%load allfgksaveddata
-%load goodfgknooffsetdata_ksop1654_new
-%load fgknooffsetdata_ksop1654
-%}
+% This script takes the outputs of the SOC 9.3 pipeline run on injected targets
+% Injections are on-target, and have at least three transits falling on valid cadences
+% The results are split into P<100 and P>100 day bins, since the behaviour is still a function of period
+% The gamma CDF is fit separately to the P<100 and P>100 and overplotted on the data
 
-%load fgkNoOffsets
-%load /Users/jessiec/kepler/compstudy/seventeenqrun/goodfgknooffsetdata_ksop1654_dvCull_withdurs.mat
 load dr25alldata_lists
-%load dr25fgkdata_lists.mat
 
 h = figure;
 xbar = 0.75:0.5:20.75;
@@ -32,8 +27,6 @@ fitFlaglt100 = false(101,1);
 for i = 1:40
     numMesesAll3lt50(i) = sum(fgkMes > ((i*0.5)) & fgkMes <=(((i+1)*0.5)) & fgkPeriods>400 & fgkThreeTransits);% & nooffsetIndx);
     detectedMesesAll3lt50(i) = sum(fgkMatch(fgkMes > ((i*0.5)) & fgkMes <=(((i+1)*0.5)) & fgkPeriods>400 & fgkThreeTransits));% & nooffsetIndx));
-    %numMesesAll3(i) = sum(fgkMes > ((i*0.5)) & fgkMes <=(((i+1)*0.5)));% & nooffsetIndx);
-    %detectedMesesAll3(i) = sum(fgkMatch(fgkMes > ((i*0.5)) & fgkMes <=(((i+1)*0.5))));% & nooffsetIndx));
     thisFraction = detectedMesesAll3lt50(i)/numMesesAll3lt50(i);
     fractionWindowedMatchedAlllt100(i) = thisFraction;
     if(thisFraction<1)
@@ -50,7 +43,7 @@ for i = 1:40
 end
 
 %plot lt100 solution
-uplim = 32;
+uplim = 32; % only fitting through to MES=16, too noisy between 16 and 20
 xdata = xbar(1:uplim);
 xdata = xdata(fitFlaglt100(1:uplim));
 ydata = fractionWindowedMatchedAlllt100(1:uplim);
@@ -65,7 +58,6 @@ h3 = plot(xbar(1:41),gammodel(xbar(1:41),resgam(1),resgam(2),resgam(3)),'LineWid
 
 display(['resgam(1) = ' num2str(resgam(1)) ', resgam(2) = ' num2str(resgam(2)) ', resgam(3) = ' num2str(resgam(3))]);
 xtest = 0:0.01:20;
-%    gamtest = gammodel(xtest,resgam(1),resgam(2)).*scaleFactor;
 gamtest = gammodel(xtest,resgam(1),resgam(2),resgam(3));
 fiftypercent = min(xtest(gamtest>0.5));
 fiftypercentString = ['Detection crosses 50% = ' num2str(fiftypercent)];
@@ -75,7 +67,6 @@ text(1,0.55,['Plateau at 16 sigma: ' num2str(resgam(3))])
 h6 = plot([0.5,0.9],[0.65,0.65],'b','LineWidth',3);
 
 % long period
-
 fractionWindowedMatchedAllgt100 = zeros(101,1);
 numMesesAll3gt100 = zeros(101,1);
 detectedMesesAll3gt100 = zeros(101,1);
@@ -85,8 +76,6 @@ fitFlaggt100 = false(101,1);
 for i = 1:40
     numMesesAll3gt50(i) = sum(fgkMes > ((i*0.5)) & fgkMes <=(((i+1)*0.5)) & fgkPeriods>=100 & fgkThreeTransits);% & nooffsetIndx);
     detectedMesesAll3gt50(i) = sum(fgkMatch(fgkMes > ((i*0.5)) & fgkMes <=(((i+1)*0.5)) & fgkPeriods>=100 & fgkThreeTransits));% & nooffsetIndx));
-    %numMesesAll3(i) = sum(fgkMes > ((i*0.5)) & fgkMes <=(((i+1)*0.5)));% & nooffsetIndx);
-    %detectedMesesAll3(i) = sum(fgkMatch(fgkMes > ((i*0.5)) & fgkMes <=(((i+1)*0.5))));% & nooffsetIndx));
     thisFraction = detectedMesesAll3gt50(i)/numMesesAll3gt50(i);
     fractionWindowedMatchedAllgt100(i) = thisFraction;
     if(thisFraction<1)
@@ -103,7 +92,7 @@ for i = 1:40
 end
 
 %plot gt100 solution
-uplim = 32;
+uplim = 32; % only fitting through to MES=16, too noisy between 16 and 20
 xdata = xbar(1:uplim);
 xdata = xdata(fitFlaggt100(1:uplim));
 ydata = fractionWindowedMatchedAllgt100(1:uplim);
@@ -118,7 +107,6 @@ h4 = plot(xbar(1:41),gammodel(xbar(1:41),resgam(1),resgam(2),resgam(3)),'r','Lin
 
 display(['resgam(1) = ' num2str(resgam(1)) ', resgam(2) = ' num2str(resgam(2)) ', resgam(3) = ' num2str(resgam(3))]);
 xtest = 0:0.01:20;
-%    gamtest = gammodel(xtest,resgam(1),resgam(2)).*scaleFactor;
 gamtest = gammodel(xtest,resgam(1),resgam(2),resgam(3));
 fiftypercent = min(xtest(gamtest>0.5));
 fiftypercentString = ['Detection crosses 50% = ' num2str(fiftypercent)];
@@ -151,15 +139,11 @@ set(0,'DefaultAxesFontName','CMU Serif Roman');
 set(0,'defaulttextfontname',fontname);
 set(gca,'FontSize',16);
 xlabel(['Expected MES ($\sigma$)'],'interpreter','latex');
-%xlabel('Expected MES','FontSize',24)
 ylabel('Fraction detected','FontSize',16,'interpreter','latex');
-%title('FGK dwarfs','FontSize',16,'interpreter','latex')
-%title('FGK dwarfs; 300$<$P$<$400 days','FontSize',16,'interpreter','latex')
 
 %save sensitivityhistogram.mat xbar fractionWindowedMatchedAll fgkMes nooffsetIndx fgkMatches detectedMesesAll3 numMesesAll3
 
 set(h,'PaperUnits','inches','PaperPosition',[0 0 10 7]);
-%print(h, '-dpng', 'highres_senscurve_ksop1654_fgk_forpaper.png', '-r300');
 
 xex = [7.1,7.1];
 yex = [0,1];
@@ -169,6 +153,6 @@ text(6,0.77,'7.1$\sigma$','FontSize',16,'interpreter','latex');
 legend([h1 h3 h4], {'7.1$\sigma$ error function','$\Gamma$ CDF $<$100 days','$\Gamma$ CDF $>$100 days'},'Location','NorthWest', 'FontSize', 18,'interpreter','latex')
 
 
-print(h, '-dpng', 'highres_senscurvwithfits_soc9p3_atl3.png', '-r300');
-print(h, '-dpsc', 'highres_senscurvwithfits_soc9p3_atl3.eps');
+print(h, '-dpng', 'highres_senscurvwithfits.png', '-r300');
+print(h, '-dpsc', 'highres_senscurvwithfits.eps');
 
